@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres-recepcion:
+    image: postgres:15-alpine
+    container_name: postgres_recepcion_db
+    restart: always
+    environment:
+      POSTGRES_DB: db_hotel_recepcion
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: p12345
+    ports:
+      - "5435:5432"          # 5432 auth, 5433 core, 5434 ventas, 5435 recepción
+    volumes:
+      - pgdata_recepcion:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_hotel_recepcion"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - hotel-recepcion-net
+
+volumes:
+  pgdata_recepcion:
+
+networks:
+  hotel-recepcion-net:
+    driver: bridge

@@ -1,0 +1,82 @@
+server:
+  port: 8089
+  # El stream SSE no debe comprimirse (la compresión puede retener los eventos).
+  # Ya viene desactivado por defecto; se deja explícito por claridad.
+  compression:
+    enabled: false
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+      server:
+        webmvc:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth-service/**
+              filters:
+                - StripPrefix=1
+
+            - id: habitaciones
+              uri: lb://habitaciones
+              predicates:
+                - Path=/habitaciones/**
+              filters:
+                - StripPrefix=1
+
+            - id: inventario-productos
+              uri: lb://inventario-productos
+              predicates:
+                - Path=/inventario-productos/**
+              filters:
+                - StripPrefix=1
+
+            - id: recepcion-service
+              uri: lb://recepcion-service
+              predicates:
+                - Path=/recepcion-service/**
+              filters:
+                - StripPrefix=1
+
+            # Cubre también las estadísticas:
+            #   /reporte-service/api/estadisticas          -> GET puntual
+            #   /reporte-service/api/estadisticas/stream   -> SSE en tiempo real
+            # StripPrefix=1 quita "/reporte-service" y el microservicio recibe "/api/estadisticas/..."
+            - id: reporte-service
+              uri: lb://reporte-service
+              predicates:
+                - Path=/reporte-service/**
+              filters:
+                - StripPrefix=1
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

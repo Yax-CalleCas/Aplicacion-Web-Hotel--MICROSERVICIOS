@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:15-alpine
+    container_name: postgres_auth_db
+    restart: always
+    environment:
+      POSTGRES_DB: db_hotel_auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: p12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - hotel-net
+
+volumes:
+  pgdata:
+
+networks:
+  hotel-net:
+    driver: bridge

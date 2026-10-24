@@ -1,0 +1,356 @@
+{
+  "info": {
+    "_postman_id": "b1a2c3d4-e5f6-7890-abcd-ef0123456789",
+    "name": "API Seguridad - Cibertec",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticación (Login)",
+      "item": [
+        {
+          "name": "Login Administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set(\"token\", jsonData.token);",
+                  "    console.log(\"Token guardado correctamente\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"correo\": \"yaxcallecastillo@gmail.com\",\n    \"clave\": \"123123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Inicia sesión con el usuario Administrador creado en el DataInitializer."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Empleado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set(\"token\", jsonData.token);",
+                  "    console.log(\"Token guardado correctamente\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"correo\": \"Trabajadorpaul@gmail.com\",\n    \"clave\": \"456456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Inicia sesión con el usuario Empleado creado en el DataInitializer."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Persona",
+      "item": [
+        {
+          "name": "Listar Personas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/persona/listar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persona", "listar"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Persona por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/persona/buscar/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persona", "buscar", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar Persona",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tipoDocumento\": \"DNI\",\n    \"documento\": \"78945612\",\n    \"nombre\": \"Carlos\",\n    \"apellido\": \"Mendoza\",\n    \"correo\": \"carlos.mendoza@gmail.com\",\n    \"clave\": \"password123\",\n    \"fotoUrl\": \"https://acortar.link/NlkrTo\",\n    \"estado\": true,\n    \"idTipoPersona\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/persona/registrar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persona", "registrar"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registro Público (Cliente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tipoDocumento\": \"DNI\",\n    \"documento\": \"98765432\",\n    \"nombre\": \"Lucía\",\n    \"apellido\": \"Pérez\",\n    \"correo\": \"lucia.perez@gmail.com\",\n    \"clave\": \"lucia123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/persona/registro-publico",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persona", "registro-publico"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Persona",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tipoDocumento\": \"DNI\",\n    \"documento\": \"78945612\",\n    \"nombre\": \"Carlos Alberto\",\n    \"apellido\": \"Mendoza\",\n    \"correo\": \"carlos.mendoza@gmail.com\",\n    \"clave\": \"password123\",\n    \"fotoUrl\": \"https://acortar.link/NlkrTo\",\n    \"estado\": true,\n    \"idTipoPersona\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/persona/actualizar/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persona", "actualizar", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Persona",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/persona/eliminar/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persona", "eliminar", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tipo Persona",
+      "item": [
+        {
+          "name": "Listar Tipos de Persona",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tipopersona/listar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tipopersona", "listar"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Tipo de Persona por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tipopersona/buscar/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tipopersona", "buscar", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar Tipo de Persona",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"descripcion\": \"Supervisor\",\n    \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tipopersona/registrar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tipopersona", "registrar"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Tipo de Persona",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"descripcion\": \"Supervisor General\",\n    \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tipopersona/actualizar/4",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tipopersona", "actualizar", "4"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Tipo de Persona",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tipopersona/eliminar/4",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tipopersona", "eliminar", "4"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

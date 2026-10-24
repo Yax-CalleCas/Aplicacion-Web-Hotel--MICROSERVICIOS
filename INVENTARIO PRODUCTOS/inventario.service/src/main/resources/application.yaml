@@ -1,0 +1,41 @@
+server:
+  port: 8000
+  tomcat:
+    max-http-form-post-size: 10MB  # Limite para formularios y peticiones grandes
+
+spring:
+  application:
+    name: inventario-productos
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/db_hotel_ventas}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:p12345}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB     # Tamaño máximo por archivo
+      max-request-size: 10MB  # Tamaño máximo total de la petición HTTP
+
+# Debe ser EXACTAMENTE el mismo secreto que usa el servicio de seguridad.
+# En Docker o producción define la variable de entorno JWT_SECRET.
+jwt:
+  secret: ${JWT_SECRET:tu_clave_secreta_super_segura_para_firmar_los_tokens_jwt_hotel}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
+    instance-id: ${spring.application.name}:${server.port}

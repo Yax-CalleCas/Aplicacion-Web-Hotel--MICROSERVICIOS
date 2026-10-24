@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres-ventas:
+    image: postgres:15-alpine
+    container_name: postgres_ventas_db
+    restart: always
+    environment:
+      POSTGRES_DB: db_hotel_ventas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: p12345
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata_ventas:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_hotel_ventas"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - hotel-ventas-net
+
+volumes:
+  pgdata_ventas:
+
+networks:
+  hotel-ventas-net:
+    driver: bridge

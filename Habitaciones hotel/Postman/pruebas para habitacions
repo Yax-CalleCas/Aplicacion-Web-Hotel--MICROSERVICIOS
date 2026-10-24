@@ -1,0 +1,335 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
+    "name": "Hotel Microservices API & Endpoints (Alineado)",
+    "description": "Pruebas integrales para el módulo de Seguridad (Auth) y el microservicio Hotel-Service multisede.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrlAuth",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "baseUrlHotel",
+      "value": "http://localhost:8085",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idHotelPrueba",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idCategoriaPrueba",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idHabitacionPrueba",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Seguridad & Auth",
+      "item": [
+        {
+          "name": "Login Exitoso (Obtener Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Token capturado correctamente', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.not.be.undefined;",
+                  "    pm.collectionVariables.set('authToken', jsonData.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"yaxcallecastillo@gmail.com\",\n  \"clave\": \"123123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/login",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Módulo Categorías",
+      "item": [
+        {
+          "name": "Listar Categorías",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlHotel}}/api/categoria/listar",
+              "host": ["{{baseUrlHotel}}"],
+              "path": ["api", "categoria", "listar"]
+            }
+          }
+        },
+        {
+          "name": "Registrar Categoría",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Suite Presidencial\",\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlHotel}}/api/categoria/registrar",
+              "host": ["{{baseUrlHotel}}"],
+              "path": ["api", "categoria", "registrar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Módulo Pisos (Multisede)",
+      "item": [
+        {
+          "name": "Listar Pisos por Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlHotel}}/api/piso/listar/hotel/{{idHotelPrueba}}",
+              "host": ["{{baseUrlHotel}}"],
+              "path": ["api", "piso", "listar", "hotel", "{{idHotelPrueba}}"]
+            }
+          }
+        },
+        {
+          "name": "Registrar Piso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idHotel\": 1,\n  \"descripcion\": \"Cuarto Piso\",\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlHotel}}/api/piso/registrar",
+              "host": ["{{baseUrlHotel}}"],
+              "path": ["api", "piso", "registrar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Módulo Habitaciones",
+      "item": [
+        {
+          "name": "Listar Habitaciones por Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlHotel}}/api/habitacion/listar/hotel/{{idHotelPrueba}}",
+              "host": ["{{baseUrlHotel}}"],
+              "path": ["api", "habitacion", "listar", "hotel", "{{idHotelPrueba}}"]
+            }
+          }
+        },
+        {
+          "name": "Registrar Habitación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idHotel\": 1,\n  \"numero\": \"501\",\n  \"detalle\": \"Habitación Suite con Jacuzzi\",\n  \"precio\": 250.00,\n  \"idPiso\": 1,\n  \"idCategoria\": 1,\n  \"idEstadoHabitacion\": 1,\n  \"urlImagenes\": [\n    \"https://acortar.link/NlkrTo\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlHotel}}/api/habitacion/registrar",
+              "host": ["{{baseUrlHotel}}"],
+              "path": ["api", "habitacion", "registrar"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Estado de Habitación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlHotel}}/api/habitacion/{{idHabitacionPrueba}}/estado/2",
+              "host": ["{{baseUrlHotel}}"],
+              "path": ["api", "habitacion", "{{idHabitacionPrueba}}", "estado", "2"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

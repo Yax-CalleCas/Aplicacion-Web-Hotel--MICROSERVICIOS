@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres-reporte:
+    image: postgres:15-alpine
+    container_name: postgres_reportes_db
+    restart: always
+    environment:
+      POSTGRES_DB: db_hotel_reportes
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: p12345
+    ports:
+      - "5436:5432"
+    volumes:
+      - pgdata_reporte:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_hotel_reportes"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - hotel-reportes-net
+
+volumes:
+  pgdata_reporte:
+
+networks:
+  hotel-reportes-net:
+    driver: bridge

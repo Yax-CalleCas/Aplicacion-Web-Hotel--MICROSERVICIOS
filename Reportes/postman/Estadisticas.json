@@ -1,0 +1,307 @@
+{
+  "info": {
+    "name": "Hotel - Estadísticas en tiempo real",
+    "description": "Pruebas del endpoint de estadísticas (reporte-service) directo y a través del API Gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8089"
+    },
+    {
+      "key": "reporte_url",
+      "value": "http://localhost:8086"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Directo a reporte-service (8086)",
+      "item": [
+        {
+          "name": "Health - reporte-service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado UP', () => pm.expect(pm.response.json().status).to.eql('UP'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{reporte_url}}/actuator/health",
+              "host": [
+                "{{reporte_url}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET snapshot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde JSON', () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "// Acepta tanto la respuesta envuelta en ApiResponse ({success, data}) como el DTO directo",
+                  "const d = json.data !== undefined ? json.data : json;",
+                  "pm.test('Tiene los campos del dashboard', () => {",
+                  "  pm.expect(d).to.have.property('generadoEn');",
+                  "  pm.expect(d).to.have.property('ventasHoy');",
+                  "  pm.expect(d).to.have.property('ingresoVentasHoy');",
+                  "  pm.expect(d).to.have.property('cantidadStockBajo');",
+                  "  pm.expect(d.topProductos).to.be.an('array');",
+                  "  pm.expect(d.productosStockBajo).to.be.an('array');",
+                  "});",
+                  "pm.test('Coherencia: cantidadStockBajo == productosStockBajo.length', () => {",
+                  "  pm.expect(d.cantidadStockBajo).to.eql(d.productosStockBajo.length);",
+                  "});",
+                  "pm.test('Top productos <= 5', () => pm.expect(d.topProductos.length).to.be.at.most(5));",
+                  "pm.test('Top ordenado de mayor a menor cantidad', () => {",
+                  "  const c = d.topProductos.map(p => p.cantidadVendida);",
+                  "  pm.expect(c).to.eql([...c].sort((a, b) => b - a));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Activa este header si tus endpoints requieren JWT"
+              }
+            ],
+            "url": {
+              "raw": "{{reporte_url}}/api/estadisticas",
+              "host": [
+                "{{reporte_url}}"
+              ],
+              "path": [
+                "api",
+                "estadisticas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET stream (SSE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Content-Type es text/event-stream', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('text/event-stream');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream",
+                "type": "text"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-cache",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Activa este header si tus endpoints requieren JWT"
+              }
+            ],
+            "url": {
+              "raw": "{{reporte_url}}/api/estadisticas/stream",
+              "host": [
+                "{{reporte_url}}"
+              ],
+              "path": [
+                "api",
+                "estadisticas",
+                "stream"
+              ]
+            },
+            "description": "Conexión SSE: debes ver llegar un evento 'estadisticas' al conectar y otro cada ~10 s. Cancela la petición cuando termines (el stream no se cierra solo)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. A través del API Gateway (8089)",
+      "item": [
+        {
+          "name": "Health - gateway",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado UP', () => pm.expect(pm.response.json().status).to.eql('UP'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/actuator/health",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET snapshot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde JSON', () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "// Acepta tanto la respuesta envuelta en ApiResponse ({success, data}) como el DTO directo",
+                  "const d = json.data !== undefined ? json.data : json;",
+                  "pm.test('Tiene los campos del dashboard', () => {",
+                  "  pm.expect(d).to.have.property('generadoEn');",
+                  "  pm.expect(d).to.have.property('ventasHoy');",
+                  "  pm.expect(d).to.have.property('ingresoVentasHoy');",
+                  "  pm.expect(d).to.have.property('cantidadStockBajo');",
+                  "  pm.expect(d.topProductos).to.be.an('array');",
+                  "  pm.expect(d.productosStockBajo).to.be.an('array');",
+                  "});",
+                  "pm.test('Coherencia: cantidadStockBajo == productosStockBajo.length', () => {",
+                  "  pm.expect(d.cantidadStockBajo).to.eql(d.productosStockBajo.length);",
+                  "});",
+                  "pm.test('Top productos <= 5', () => pm.expect(d.topProductos.length).to.be.at.most(5));",
+                  "pm.test('Top ordenado de mayor a menor cantidad', () => {",
+                  "  const c = d.topProductos.map(p => p.cantidadVendida);",
+                  "  pm.expect(c).to.eql([...c].sort((a, b) => b - a));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Activa este header si tus endpoints requieren JWT"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/reporte-service/api/estadisticas",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "reporte-service",
+                "api",
+                "estadisticas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET stream (SSE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Content-Type es text/event-stream', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('text/event-stream');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream",
+                "type": "text"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-cache",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Activa este header si tus endpoints requieren JWT"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/reporte-service/api/estadisticas/stream",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "reporte-service",
+                "api",
+                "estadisticas",
+                "stream"
+              ]
+            },
+            "description": "Conexión SSE: debes ver llegar un evento 'estadisticas' al conectar y otro cada ~10 s. Cancela la petición cuando termines (el stream no se cierra solo)."
+          }
+        }
+      ]
+    }
+  ]
+}

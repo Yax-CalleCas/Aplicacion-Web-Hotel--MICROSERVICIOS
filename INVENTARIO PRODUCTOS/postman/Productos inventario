@@ -1,0 +1,171 @@
+{
+  "info": {
+    "name": "Hotel - Inventario Productos",
+    "description": "Login (seguridad, puerto 8081) + CRUD de productos (puerto 8000). El token JWT se guarda automaticamente tras el login.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrlAuth", "value": "http://localhost:8081" },
+    { "key": "baseUrlProductos", "value": "http://localhost:8000" },
+    { "key": "token", "value": "" },
+    { "key": "productoId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "1. Login (seguridad 8081)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"yaxcallecastillo@gmail.com\",\n  \"password\": \"123123\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrlAuth}}/auth/login",
+          "host": ["{{baseUrlAuth}}"],
+          "path": ["auth", "login"]
+        },
+        "description": "Ajusta la ruta (/auth/login) y los campos del body (email/password o username) segun tu auth-service."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login exitoso', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});",
+              "const json = pm.response.json();",
+              "const token = json.token || json.accessToken || json.access_token ||",
+              "              (json.data && (json.data.token || json.data.accessToken || json.data.access_token));",
+              "if (token) {",
+              "    pm.collectionVariables.set('token', token);",
+              "    console.log('Token guardado');",
+              "} else {",
+              "    console.warn('No se encontro el token en la respuesta');",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Listar productos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrlProductos}}/api/producto/listar",
+          "host": ["{{baseUrlProductos}}"],
+          "path": ["api", "producto", "listar"]
+        }
+      }
+    },
+    {
+      "name": "3. Registrar producto",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Botella de agua 500ml\",\n  \"descripcion\": \"Agua mineral sin gas\",\n  \"precio\": 3.50,\n  \"stock\": 100\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrlProductos}}/api/producto/registrar",
+          "host": ["{{baseUrlProductos}}"],
+          "path": ["api", "producto", "registrar"]
+        },
+        "description": "Ajusta los campos a los de tu ProductoDto."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Producto creado (201)', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "const json = pm.response.json();",
+              "if (json.data && json.data.id !== undefined) {",
+              "    pm.collectionVariables.set('productoId', json.data.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Buscar producto por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrlProductos}}/api/producto/{{productoId}}",
+          "host": ["{{baseUrlProductos}}"],
+          "path": ["api", "producto", "{{productoId}}"]
+        }
+      }
+    },
+    {
+      "name": "5. Aumentar stock",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrlProductos}}/api/producto/{{productoId}}/stock/aumentar?cantidad=10",
+          "host": ["{{baseUrlProductos}}"],
+          "path": ["api", "producto", "{{productoId}}", "stock", "aumentar"],
+          "query": [
+            { "key": "cantidad", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Actualizar producto",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Botella de agua 1L\",\n  \"descripcion\": \"Agua mineral sin gas 1 litro\",\n  \"precio\": 5.00,\n  \"stock\": 150\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrlProductos}}/api/producto/actualizar/{{productoId}}",
+          "host": ["{{baseUrlProductos}}"],
+          "path": ["api", "producto", "actualizar", "{{productoId}}"]
+        }
+      }
+    },
+    {
+      "name": "7. Eliminar producto",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrlProductos}}/api/producto/eliminar/{{productoId}}",
+          "host": ["{{baseUrlProductos}}"],
+          "path": ["api", "producto", "eliminar", "{{productoId}}"]
+        }
+      }
+    }
+  ]
+}
